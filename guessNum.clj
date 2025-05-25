@@ -1,34 +1,39 @@
-(def bounds (atom {:min 0 :max 0}))
-(def current-guess (atom 0))
+(def range (atom {:min 0 :max 0}))
+(def guess (atom 0))
 
-(defn init-game [n m]
-  (reset! bounds {:min n :max m})
-  (swap! current-guess (constantly (quot (+ n m) 2)))
+
+(defn start [n m]
+  (reset! range {:min n :max m})
+  (swap! guess (constantly (quot (+ n m) 2)))
   (println "Игра началась!"))
 
-(defn show-guess []
-  (println "Моё предположение: " @current-guess))
 
-(defn lower []
-  (swap! bounds assoc :max (dec @current-guess))
-  (swap! current-guess (constantly (quot (+ (@bounds :min) (@bounds :max)) 2)))
-  (show-guess))
+(defn guess-my-number []
+  (println "Мое предположение: " @guess))
 
-(defn higher []
-  (swap! bounds assoc :min (inc @current-guess))
-  (swap! current-guess (constantly (quot (+ (@bounds :min) (@bounds :max)) 2)))
-  (show-guess))
+
+(defn smaller []
+  (swap! range assoc :max (dec @guess))
+  (swap! guess (constantly (quot (+ (@range :min) (@range :max)) 2)))
+  (guess-my-number))
+
+
+(defn bigger []
+  (swap! range assoc :min (inc @guess))
+  (swap! guess (constantly (quot (+ (@range :min) (@range :max)) 2)))
+  (guess-my-number))
+
 
 (defn -main []
   (println "Введите диапазон чисел (n и m):")
   (let [n (read) m (read)]
-    (init-game n m)
+    (start n m)
     (loop []
-      (show-guess)
-      (println "Ваш ответ (lower, higher, correct):")
+      (guess-my-number)
+      (println "Ваш ответ (smaller, bigger, correct):")
       (let [response (read-line)]
         (cond
-          (= response "lower") (do (lower) (recur))
-          (= response "higher") (do (higher) (recur))
+          (= response "smaller") (do (smaller) (recur))
+          (= response "bigger") (do (bigger) (recur))
           (= response "correct") (println "Ура! Я угадал!")
           :else (println "Некорректный ответ. Попробуйте снова.") (recur))))))
